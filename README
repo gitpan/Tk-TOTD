@@ -16,6 +16,7 @@ This module requires these other modules and libraries:
 
   Tk
   Tk::ROText
+  Tk::DialogBox
 
 COPYRIGHT AND LICENCE
 

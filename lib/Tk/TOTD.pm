@@ -4,21 +4,34 @@ use strict;
 use warnings;
 use Tk;
 use Tk::ROText;
+use Tk::DialogBox;
+use Tk::Widget;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
-our @ISA = qw(Tk::Widget);
+Tk::Widget->Construct ('TOTD');
 
-sub Show {
-	my $pkg = shift;
+sub new {
+	my $proto = shift;
+	my $mw = shift;
+	my $class = ref($proto) || $proto || 'Tk::TOTD';
 
-	my $args = {
+	my $self = {
+		mw => $mw,
 		@_,
 	};
 
-	my $self = MainWindow->new (
+	bless ($self,$class);
+	return $self;
+}
+
+sub Show {
+	my ($args) = @_;
+
+	my $self = $args->{mw}->DialogBox (
 		-title      => $args->{'-title'} || 'Tip Of The Day',
 		-background => $args->{'-background'} || '#BFBFBF',
+		-buttons    => [],
 	);
 	$self->geometry ('460x260');
 	$self->resizable (0,0);
@@ -243,7 +256,15 @@ sub Show {
 		},
 	)->pack (-side => 'right', -padx => 5);
 
-	$self->focus;
+	$self->Show;
+}
+
+sub configure {
+	my ($cw,%args) = @_;
+
+	foreach my $arg (keys %args) {
+		$cw->{$arg} = $args{$arg};
+	}
 }
 
 sub hint {
@@ -262,6 +283,12 @@ BwUCADs=
 ';
 }
 
+sub Exit {
+	my $cw = shift;
+
+	undef $cw;
+}
+
 =head1 NAME
 
 Tk::TOTD - Tip Of The Day dialog for Perl/Tk.
@@ -270,10 +297,14 @@ Tk::TOTD - Tip Of The Day dialog for Perl/Tk.
 
   use Tk::TOTD;
 
-  Tk::TOTD->Show (
+  my $top = MainWindow->new();
+
+  my $totd = $top->TOTD (
     -title    => 'Tip Of The Day -- MyPerlApp',
     -messages => \@messages,
   );
+
+  $totd->Show;
 
 =head1 DESCRIPTION
 
@@ -366,14 +397,24 @@ The text of the next button. Defaults to "Next Tip"
 
 =item B<Show (? options ?)>
 
-Displays the Tip Of The Day dialog. Currently the dialog behaves as a Toplevel and doesn't
-block the other windows on your program as a DialogBox would.
+Displays the Tip Of The Day dialog. The TOTD dialog is based from Tk::DialogBox
+and therefore will pause your main window.
+
+=item B<configure (? options ?)>
+
+Reconfigure previously set options.
 
 =back
 
+=head1 CHANGES
+
+  Version 0.2
+  - The widget now behaves as a DialogBox as it should, blocking the main window
+    until closed.
+
 =head1 BUGS
 
-There is no way of accessing your TOTD window once it's been B<Show>n.
+None known yet.
 
 =head1 AUTHOR
 
